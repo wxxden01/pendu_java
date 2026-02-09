@@ -134,12 +134,12 @@ class Jeu{
         for (int i = 0; i < longueurMot; i++) {
             emptyWord.add("_");
         }
-        String usename = Initialisation.createUser();
+        String username = Initialisation.createUser();
 
         //lancement de l'initialisation du jeu à partir des variables créés au-dessus
-        Initialisation start = new Initialisation(longueurList, nbRandom, mot, longueurMot, listLettres, chance, essaies, lettresUtilise, emptyWord, usename);
+        Initialisation start = new Initialisation(longueurList, nbRandom, mot, longueurMot, listLettres, chance, essaies, lettresUtilise, emptyWord, username);
 
-        launch(chance, essaies, listLettres, emptyWord, mot, lettresUtilise, usename);
+        launch(chance, essaies, listLettres, emptyWord, mot, lettresUtilise, username);
     }
 
     public static void launch(int chance, int essaies, List<String> lisLettres, List<String> emptyWord, String mot,List<String> lettresUtilise, String username){
@@ -167,7 +167,7 @@ class Jeu{
         System.out.println("Vous disposez de "+ chance + " chance(s)");
         System.out.println("Choisissez une lettre :");
         Scanner sc = new Scanner(System.in);
-        return sc.nextLine();
+        return sc.nextLine().toLowerCase();
     }
 
     public static boolean verif(String lettre, List<String> listLettres, List<String> emptyWord, List<String> lettresUtilise){
