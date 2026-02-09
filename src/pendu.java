@@ -19,7 +19,7 @@ public  class pendu {
 // 1 création d'une class d'initialisation du jeu
 class Initialisation {
 
-    public Initialisation(int longueurList, int nbRandom, String mot, int longueurMot, List<String> listeLettres, int chance, int essais,List<String> lettresUtilise, List<String> emptyWord) {
+    public Initialisation(int longueurList, int nbRandom, String mot, int longueurMot, List<String> listeLettres, int chance, int essais,List<String> lettresUtilise, List<String> emptyWord, String mUserName) {
         this.mLongueurList = longueurList;
         this.mNbRandom = nbRandom;
         this.mMot = mot;
@@ -29,6 +29,7 @@ class Initialisation {
         this.mEssaies = essais;
         this.mLettresUtilise = lettresUtilise;
         this.mEmptyWord = emptyWord;
+        this.mUserName = mUserName;
 
 //        System.out.println("Longueur de la liste de mot : "+mLongueurList);
 //        System.out.println("Nombre random choisit dans cette liste : "+mNbRandom);
@@ -38,6 +39,7 @@ class Initialisation {
 //        System.out.println("Nombre chance : "+ mChance);
 //        System.out.println("Nombre d'éssaies : "+ mEssaies);
 //        System.out.println("État du mot : "+ mEmptyWord);
+//        System.out.println("Vos êtes loger sous le pseudo: "+mUserName);
 
     }
     // variables de bases avec de valeurs par défauts
@@ -51,7 +53,7 @@ class Initialisation {
     List<String> mLettresUtilise;
     List<String> mEmptyWord;
     String fileName = "scores.txt";
-
+    String mUserName;
 
     //1 On enregistre les mots dans une liste pour s'en servir plus tard
     public static ArrayList<String> listes(){
@@ -86,6 +88,18 @@ class Initialisation {
         return list;
     }
 
+    //création du joueur
+    public static String createUser(){
+        Scanner player = new Scanner(System.in);
+        System.out.println("Veuillez choisir un pseudo:");
+        String username = player.nextLine();
+        //empêche de ne rien mettre comme pseudo
+        if (username.isEmpty()){
+            username = "Anonyme";
+        }
+        return username;
+    }
+    //création d'un fichier de log pour les joueurs remportant la partie
     public static void loadFile(){
         File file = new File("scores.txt");
         try {
@@ -102,15 +116,10 @@ class Initialisation {
 
 }
 
-class Player{
-    public Player(){
-
-    }
-}
-
 class Jeu{
 
     public Jeu(){
+        //initialisation des variables de bases
         int longueurList = Initialisation.listes().size();
         int nbRandom = Initialisation.pioche(longueurList);
         String mot = Initialisation.listes().get(nbRandom).toLowerCase();
@@ -125,13 +134,15 @@ class Jeu{
         for (int i = 0; i < longueurMot; i++) {
             emptyWord.add("_");
         }
+        String usename = Initialisation.createUser();
 
+        //lancement de l'initialisation du jeu à partir des variables créés au-dessus
+        Initialisation start = new Initialisation(longueurList, nbRandom, mot, longueurMot, listLettres, chance, essaies, lettresUtilise, emptyWord, usename);
 
-        Initialisation start = new Initialisation(longueurList, nbRandom, mot, longueurMot, listLettres, chance, essaies, lettresUtilise, emptyWord);
-        launch(chance, essaies, listLettres, emptyWord, mot, lettresUtilise);
+        launch(chance, essaies, listLettres, emptyWord, mot, lettresUtilise, usename);
     }
 
-    public static void launch(int chance, int essaies, List<String> lisLettres, List<String> emptyWord, String mot,List<String> lettresUtilise){
+    public static void launch(int chance, int essaies, List<String> lisLettres, List<String> emptyWord, String mot,List<String> lettresUtilise, String username){
 
         while (chance > 0){
             String lettre = request(chance, emptyWord, lettresUtilise, essaies);
@@ -140,7 +151,7 @@ class Jeu{
                 essaies++;
                 chance = analyse(chance, lisLettres, lettre, emptyWord);
                 if (lisLettres.equals(emptyWord)){
-                    System.out.println("Bravo! Vous venez de trouver le mot!\n Nombre d'éssaies : "+ essaies);
+                    System.out.println("Bravo! @"+username+" Vous venez de trouver le mot: "+mot+"\nNombre d'éssaies : "+ essaies);
                     System.exit(0);
                 }
             }
