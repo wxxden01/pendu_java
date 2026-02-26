@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -19,7 +16,7 @@ public  class pendu {
 // 1 création d'une class d'initialisation du jeu
 class Initialisation {
 
-    public Initialisation(int longueurList, int nbRandom, String mot, int longueurMot, List<String> listeLettres, int chance, int essais,List<String> lettresUtilise, List<String> emptyWord, String mUserName) {
+    public Initialisation(int longueurList, int nbRandom, String mot, int longueurMot, List<String> listeLettres, int chance, int essais,List<String> lettresUtilise, List<String> emptyWord, String mUserName, String fileName) {
         this.mLongueurList = longueurList;
         this.mNbRandom = nbRandom;
         this.mMot = mot;
@@ -30,6 +27,7 @@ class Initialisation {
         this.mLettresUtilise = lettresUtilise;
         this.mEmptyWord = emptyWord;
         this.mUserName = mUserName;
+        this.mFileName = fileName;
 
 //        System.out.println("Longueur de la liste de mot : "+mLongueurList);
 //        System.out.println("Nombre random choisit dans cette liste : "+mNbRandom);
@@ -52,10 +50,10 @@ class Initialisation {
     int mEssaies = 0;
     List<String> mLettresUtilise;
     List<String> mEmptyWord;
-    String fileName = "scores.txt";
+    String mFileName;
     String mUserName;
 
-    //1 On enregistre les mots dans une liste pour s'en servir plus tard
+    //2 On enregistre les mots dans une liste pour s'en servir plus tard
     public static ArrayList<String> listes(){
         ArrayList<String> maListeDeMot = new ArrayList<>();
         FileReader fr;
@@ -73,13 +71,13 @@ class Initialisation {
         return maListeDeMot;
     }
 
-    //2 on choisit un mot au hasard dans la liste
+    //3 on choisit un mot au hasard dans la liste
     public static int pioche(int mLongueur){
         Random random = new Random();
         return random.nextInt(0, mLongueur-1);
     }
 
-    // 3 on fait une liste dans laquelle on stock le mot lettre par lettre
+    //4 on fait une liste dans laquelle on stock le mot lettre par lettre
     public static List<String> motListe(String mMot){
         List<String> list= new ArrayList<>();
         for(int i = 0; i < mMot.length(); i++) {
@@ -88,7 +86,7 @@ class Initialisation {
         return list;
     }
 
-    //création du joueur
+    //5  création du joueur
     public static String createUser(){
         Scanner player = new Scanner(System.in);
         System.out.println("Veuillez choisir un pseudo:");
@@ -99,23 +97,10 @@ class Initialisation {
         }
         return username;
     }
-    //création d'un fichier de log pour les joueurs remportant la partie
-    public static void loadFile(){
-        File file = new File("scores.txt");
-        try {
-            if (file.createNewFile()) {
-                System.out.println("File created: " + file.getName());
-            } else {
-                System.out.println("File already exists.");
-            }
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
 
 }
 
+//6 création d'une class jeu
 class Jeu{
 
     public Jeu(){
@@ -127,22 +112,26 @@ class Jeu{
         List<String> listLettres = Initialisation.motListe(mot);
         int chance = 8;
         int essaies = 0;
+        String filename = "scores.txt";
 
         List<String> lettresUtilise = new ArrayList<>();
-        List<String> emptyWord = new ArrayList<>();
 
+        List<String> emptyWord = new ArrayList<>();
         for (int i = 0; i < longueurMot; i++) {
             emptyWord.add("_");
         }
+
+        // création de l'user
         String username = Initialisation.createUser();
 
         //lancement de l'initialisation du jeu à partir des variables créés au-dessus
-        Initialisation start = new Initialisation(longueurList, nbRandom, mot, longueurMot, listLettres, chance, essaies, lettresUtilise, emptyWord, username);
+        Initialisation start = new Initialisation(longueurList, nbRandom, mot, longueurMot, listLettres, chance, essaies, lettresUtilise, emptyWord, username, filename);
 
-        launch(chance, essaies, listLettres, emptyWord, mot, lettresUtilise, username);
+        launch(chance, essaies, listLettres, emptyWord, mot, lettresUtilise, username, filename, longueurMot);
     }
 
-    public static void launch(int chance, int essaies, List<String> lisLettres, List<String> emptyWord, String mot,List<String> lettresUtilise, String username){
+    // lancement de la partie
+    public static void launch(int chance, int essaies, List<String> lisLettres, List<String> emptyWord, String mot,List<String> lettresUtilise, String username, String filename, int longueurMot){
 
         while (chance > 0){
             String lettre = request(chance, emptyWord, lettresUtilise, essaies);
@@ -152,14 +141,16 @@ class Jeu{
                 chance = analyse(chance, lisLettres, lettre, emptyWord);
                 if (lisLettres.equals(emptyWord)){
                     System.out.println("Bravo! @"+username+" Vous venez de trouver le mot: "+mot+"\nNombre d'éssaies : "+ essaies);
+//                    loadFile(filename);
+                    scoreLog(filename, essaies, longueurMot, username);
                     System.exit(0);
                 }
-            }
-
+            } 
         }
         System.out.println("Perdu!\nLe mot à deviner été : "+ mot);
     }
 
+    //demande d'une lettre à l'utilisateur + affichage d'info sur la partie
     public static String request(int chance, List<String> emptyWord, List<String> lettresUtilise, int essaies){
         System.out.println("Liste des lettres déjà utilisé : "+ lettresUtilise);
         System.out.println("État actuel du mot"+ emptyWord);
@@ -170,6 +161,7 @@ class Jeu{
         return sc.nextLine().toLowerCase();
     }
 
+    //vérification que l'utilisateur mette bien une lettre et une lettre non utilisée auparavant
     public static boolean verif(String lettre, List<String> listLettres, List<String> emptyWord, List<String> lettresUtilise){
         boolean r;
         if (!lettre.matches("[a-z]")){
@@ -201,6 +193,33 @@ class Jeu{
             if (listLettres.get(i).equals(lettre)) {
                 emptyWord.set(i, lettre);
             }
+        }
+    }
+
+    //création d'un fichier de log pour les joueurs remportant la partie
+//    public static void loadFile(String filename){
+//        File file = new File(filename);
+//        try {
+//            if (file.createNewFile()) {
+//                System.out.println("File created: " + file.getName());
+//            } else {
+//                System.out.println("File already exists.");
+//            }
+//        } catch (IOException e) {
+//            System.out.println("An error occurred.");
+//            e.printStackTrace();
+//        }
+//    }
+
+    //enregistrement du score du joueur dans un fichier texte
+    public static void scoreLog(String filename, int essaies, int longueurMot, String username){
+        int score = (longueurMot/essaies)*100;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            writer.newLine();
+            writer.write("@"+username+ ": "+score+"pts");
+        } catch (IOException e) {
+            System.out.println("Erreur lors de l'écriture du score");
+            e.printStackTrace();
         }
     }
 }
