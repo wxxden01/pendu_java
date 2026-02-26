@@ -197,23 +197,23 @@ class Jeu{
     }
 
     //création d'un fichier de log pour les joueurs remportant la partie
-//    public static void loadFile(String filename){
-//        File file = new File(filename);
-//        try {
-//            if (file.createNewFile()) {
-//                System.out.println("File created: " + file.getName());
-//            } else {
-//                System.out.println("File already exists.");
-//            }
-//        } catch (IOException e) {
-//            System.out.println("An error occurred.");
-//            e.printStackTrace();
-//        }
-//    }
+    public static void loadFile(String filename){
+        File file = new File(filename);
+        try {
+            if (file.createNewFile()) {
+                System.out.println("File created: " + file.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
 
     //enregistrement du score du joueur dans un fichier texte
     public static void scoreLog(String filename, int essaies, int longueurMot, String username){
-        int score = (longueurMot/essaies)*100;
+        int score = (essaies*100)/longueurMot;
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             writer.newLine();
             writer.write("@"+username+ ": "+score+"pts");
